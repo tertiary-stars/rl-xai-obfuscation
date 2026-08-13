@@ -1,0 +1,22 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments
+venv/
+env/
+.venv/
+.env
+
+# IDE configuration
+.vscode/
+.idea/
+
+# Saved Models & Data
+*.zip
+*.pkl
+*.joblib
+*.h5
+.ipynb_checkpoints/
