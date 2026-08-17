@@ -29,13 +29,25 @@ class XAIObfuscationEnv(gym.Env):
             dtype=np.float32
         )
 
+        # Typical SHAP magnitude - scale for "full obfuscation" and for normalizing the adversary's input.
+        sample = X_data[:min(200, len(X_data))]
+        sample_shap = self.explainer.shap_values(sample)
+        sample_shap = sample_shap[0] if isinstance(sample_shap, list) else sample_shap
+        self.e_std = np.std(sample_shap, axis=0)
+        self.e_std[self.e_std == 0] = 1e-6
+
+        adversary_std = np.concatenate([self.data_std, self.e_std])
+        adversary_std[adversary_std == 0] = 1.0
+        self.adversary_mean = np.concatenate([np.mean(self.X_data, axis=0), np.mean(sample_shap, axis=0)])
+        self.adversary_std = adversary_std
+
         # The adversary's input is the query concatenated with the explanation
-        self.adversary = Adversary(input_dim=self.n_features * 2)
+        self.adversary = Adversary(input_dim=self.n_features * 2, feature_mean=self.adversary_mean, feature_std=self.adversary_std)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.current_step = 0
-        self.adversary = Adversary(input_dim=self.n_features * 2)
+        self.adversary = Adversary(input_dim=self.n_features * 2, feature_mean=self.adversary_mean, feature_std=self.adversary_std)
         return self._get_obs(), {}
 
     def _get_obs(self):
@@ -52,8 +64,9 @@ class XAIObfuscationEnv(gym.Env):
         # 1. Get the true explanation and apply the agent's action (obfuscation).
         shap_values = self.explainer.shap_values(x_query)
         e_true = shap_values[0] if isinstance(shap_values, list) else shap_values
-        noise = generate_noise(e_true, self.data_std, seed_generator=self.np_random)
-        e_output = e_true + (a_t * noise)
+        # a_t=0 -> exact explanation, a_t=1 -> full obfuscation (real-scale noise, not a tiny perturbation).
+        noise = generate_noise(e_true, self.e_std, scale_fraction=1.0, seed_generator=self.np_random)
+        e_output = (1 - a_t) * e_true + a_t * noise
 
         # 2. The adversary sees the query AND the obfuscated explanation.
         adversary_input = np.concatenate([x_query, e_output], axis=1)

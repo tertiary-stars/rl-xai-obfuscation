@@ -31,8 +31,18 @@ def evaluate_strategy(strategy_fn, X_data, target_model, explainer, num_steps=50
     np.random.seed(SEED)
     random.seed(SEED)
 
+    # Typical SHAP magnitude, used to normalize the adversary's input.
+    sample = X_data[:min(200, len(X_data))]
+    sample_shap = explainer.shap_values(sample)
+    sample_shap = sample_shap[0] if isinstance(sample_shap, list) else sample_shap
+    e_std = np.std(sample_shap, axis=0)
+    e_std[e_std == 0] = 1e-6
+    feature_std = np.concatenate([np.std(X_data, axis=0), e_std])
+    feature_std[feature_std == 0] = 1.0
+    feature_mean = np.concatenate([np.mean(X_data, axis=0), np.mean(sample_shap, axis=0)])
+
     # Adversary's input is the query concatenated with the explanation
-    adversary = Adversary(input_dim=X_data.shape[1] * 2)
+    adversary = Adversary(input_dim=X_data.shape[1] * 2, feature_mean=feature_mean, feature_std=feature_std)
     l_extract_history = []
     utility_loss_history = []
 
@@ -73,29 +83,37 @@ if __name__ == "__main__":
     print("1. Loading data, training target model, and loading RL agent...")
     X_train, X_test, target_model, explainer = load_and_train_target()
     agent = PPO.load("ppo_xai_defender_test")
-    # We must use the standard deviation of the TRAINING data for noise generation
-    # as this is what the agent was trained on.
-    X_train_std = np.std(X_train, axis=0)
     print(" -> Done.")
+
+    # Must match XAIObfuscationEnv's e_std definition for a fair comparison.
+    _sample = X_train[:min(200, len(X_train))]
+    _sample_shap = explainer.shap_values(_sample)
+    _sample_shap = _sample_shap[0] if isinstance(_sample_shap, list) else _sample_shap
+    e_std = np.std(_sample_shap, axis=0)
+    e_std[e_std == 0] = 1e-6
+
+    # Same normalization as Adversary, needed for the dynamics trace below.
+    feature_std = np.concatenate([np.std(X_test, axis=0), e_std])
+    feature_std[feature_std == 0] = 1.0
+    feature_mean = np.concatenate([np.mean(X_test, axis=0), np.mean(_sample_shap, axis=0)])
 
     # --- Define Strategy Wrappers ---
     # Wrapper for the RL Agent
     def rl_agent_strategy(e_true, x_query, step, max_steps):
         history_ratio = np.array([step / max_steps])
-        obs = np.concatenate([x_query.flatten(), history_ratio]).astype(np.float32) 
+        obs = np.concatenate([x_query.flatten(), history_ratio]).astype(np.float32)
         action, _ = agent.predict(obs, deterministic=True)
         a_t = action[0]
-        # Use the same noise application as the environment for a fair comparison
-        # The agent's action `a_t` acts as the noise_level.
-        noise = baselines.generate_noise(e_true, X_train_std, noise_level=a_t)
-        return e_true + (a_t * noise)
+        # Match the environment's obfuscation formula (Eq. 2).
+        noise = baselines.generate_noise(e_true, e_std, scale_fraction=1.0)
+        return (1 - a_t) * e_true + a_t * noise
 
     # Wrappers for static baselines
     def no_defense_strategy(e_true, x_query, step, max_steps): return e_true
     def top_k_strategy(e_true, x_query, step, max_steps): return baselines.apply_top_k_truncation(e_true, k=3)
     def noise_strategy(e_true, x_query, step, max_steps):
-        # Use the consistent data_std for noise generation
-        return baselines.apply_noise(e_true, data_std=X_train_std, noise_level=0.5)
+        # Scale to e_std (SHAP magnitude), not raw feature std - different units.
+        return baselines.apply_noise(e_true, data_std=e_std, noise_level=0.5)
     def precision_strategy(e_true, x_query, step, max_steps): return baselines.apply_precision_reduction(e_true, decimals=2)
     def subset_strategy(e_true, x_query, step, max_steps): return baselines.apply_random_subset(e_true, p=0.5)
 
@@ -157,4 +175,44 @@ if __name__ == "__main__":
     plot_filename = "security_vs_distortion_tradeoff.png"
     plt.savefig(plot_filename)
     print(f" -> Plot saved to {plot_filename}")
+
+    print("\n5. Recording a_t over a single session (dynamic behavior check)...")
+    # Averages can't show adaptive behavior - trace a_t and l_extract per step instead.
+    np.random.seed(SEED)
+    trace_steps = 200
+    trace_adversary = Adversary(input_dim=X_test.shape[1] * 2, feature_mean=feature_mean, feature_std=feature_std)
+    a_t_trace, l_extract_trace = [], []
+    for i in range(trace_steps):
+        x_query = X_test[i].reshape(1, -1)
+        y_target_pred = target_model.predict(x_query)
+        shap_values = explainer.shap_values(x_query)
+        e_true = (shap_values[0] if isinstance(shap_values, list) else shap_values).flatten()
+
+        history_ratio = np.array([i / trace_steps])
+        obs = np.concatenate([x_query.flatten(), history_ratio]).astype(np.float32)
+        action, _ = agent.predict(obs, deterministic=True)
+        a_t = action[0]
+        a_t_trace.append(a_t)
+
+        noise = baselines.generate_noise(e_true, e_std, scale_fraction=1.0)
+        e_output = (1 - a_t) * e_true + a_t * noise
+        adversary_input = np.concatenate([x_query, e_output.reshape(1, -1)], axis=1)
+        l_extract_trace.append(trace_adversary.compute_loss(adversary_input, y_target_pred))
+        trace_adversary.update(adversary_input, y_target_pred)
+
+    fig2, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 7), sharex=True)
+    ax1.plot(a_t_trace, color="tab:orange")
+    ax1.set_ylabel("Obfuscation intensity (a_t)")
+    ax1.set_title("RL Agent's Obfuscation Intensity and Adversary's Extraction Loss Over a Session", fontsize=14)
+    ax1.grid(True, linestyle="--", alpha=0.5)
+
+    ax2.plot(l_extract_trace, color="tab:blue")
+    ax2.set_ylabel("Extraction loss (l_extract)")
+    ax2.set_xlabel("Step in session")
+    ax2.grid(True, linestyle="--", alpha=0.5)
+
+    plt.tight_layout()
+    trace_filename = "rl_agent_dynamics_over_session.png"
+    plt.savefig(trace_filename)
+    print(f" -> Plot saved to {trace_filename}")
     plt.show()
