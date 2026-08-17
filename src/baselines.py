@@ -8,14 +8,17 @@ def apply_top_k_truncation(shap_values, k=3):
     e_output[top_k_indices] = shap_values[top_k_indices]
     return e_output
 
-def apply_noise(shap_values, noise_level=0.1):
+def generate_noise(shap_values, data_std, noise_level=1.0, seed_generator=np.random):
     """
-    Adds Gaussian noise to the explanation values.
-    The noise is scaled by the standard deviation of the original values.
+    Generates Gaussian noise scaled by the standard deviation of the feature data.
     """
-    shap_values = np.array(shap_values, dtype=np.float32)
-    noise_std = np.std(shap_values) * noise_level
-    noise = np.random.normal(loc=0.0, scale=noise_std, size=shap_values.shape)
+    noise_std = data_std * 0.1  # Use a fraction of data std dev as noise magnitude
+    noise = seed_generator.normal(loc=0.0, scale=noise_std, size=shap_values.shape)
+    return noise * noise_level
+
+def apply_noise(shap_values, data_std, noise_level=0.1):
+    """Adds Gaussian noise to the explanation values."""
+    noise = generate_noise(shap_values, data_std, noise_level)
     return shap_values + noise
 
 def apply_precision_reduction(shap_values, decimals=2):
