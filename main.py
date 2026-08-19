@@ -32,44 +32,57 @@ if __name__ == "__main__":
         X_train, X_test, target_model, explainer = load_and_train_target()
         print(" -> Target model trained successfully.")
         
-        print("2. Initializing Custom RL Environment...")
-        env_kwargs = {
-            "X_data": X_train,
-            "target_model": target_model,
-            "explainer": explainer,
-            "lambda_param": 1.0, # Weight for extraction loss (security)
-            "mu_param": 0.05,    # Weight for utility loss (distortion)
-        }
-        # monitor_dir logs episode rewards to CSV for the learning-curve plot below.
-        env = make_vec_env(XAIObfuscationEnv, n_envs=1, env_kwargs=env_kwargs, seed=SEED, monitor_dir=MONITOR_DIR)
-        print(" -> Environment initialized.")
+        ablation_pairs = [
+            (0.0, 1.0),   # Extreme Utility
+            (1.0, 0.5),   # High Utility
+            (1.0, 0.2),   # Moderate-High Utility
+            (1.0, 0.1),   # Moderate Utility
+            (1.0, 0.05),  # Current Baseline
+            (1.0, 0.01),  # High Security
+            (1.0, 0.0)    # Extreme Security
+        ]
 
-        print("3. Setting up PPO Agent (Defender)...")
-        # Set seed for PPO agent for reproducible initialization
-        agent = PPO("MlpPolicy", env, verbose=1, learning_rate=3e-4, seed=SEED)
+        for lam, mu in ablation_pairs:
+            print(f"\n--- Training agent with lambda={lam}, mu={mu} ---")
+            
+            print("2. Initializing Custom RL Environment...")
+            env_kwargs = {
+                "X_data": X_train,
+                "target_model": target_model,
+                "explainer": explainer,
+                "lambda_param": lam,
+                "mu_param": mu,
+            }
+            # Use a unique log directory for each pair if we want to keep monitor files
+            log_dir = f"{MONITOR_DIR}/l{lam}_m{mu}"
+            import os
+            os.makedirs(log_dir, exist_ok=True)
+            
+            env = make_vec_env(XAIObfuscationEnv, n_envs=1, env_kwargs=env_kwargs, seed=SEED, monitor_dir=log_dir)
+            print(" -> Environment initialized.")
 
-        print("4. Starting Training Loop (this may take a few minutes)...")
-        # 5000 steps is under one PPO rollout - not enough to learn. lambda_param=50 makes obfuscation worth its utility cost.
-        agent.learn(total_timesteps=50000)
-        
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Training Complete. Saving agent...")
-        agent.save("ppo_xai_defender_test")
-        print(" -> Agent saved successfully.")
+            print("3. Setting up PPO Agent (Defender)...")
+            agent = PPO("MlpPolicy", env, verbose=0, learning_rate=3e-4, seed=SEED)
 
-        print("5. Plotting learning curve...")
-        # monitor.csv's first line is a JSON comment (run metadata), so skip it.
-        monitor_df = pd.read_csv(f"{MONITOR_DIR}/0.monitor.csv", skiprows=1)
-        rolling_reward = monitor_df["r"].rolling(window=10, min_periods=1).mean()
+            print("4. Starting Training Loop...")
+            agent.learn(total_timesteps=50000)
+            
+            model_name = f"ppo_xai_defender_l{lam}_m{mu}"
+            agent.save(model_name)
+            print(f" -> Agent saved as {model_name}.")
 
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(rolling_reward)
-        ax.set_title("PPO Training Learning Curve", fontsize=16)
-        ax.set_xlabel("Episode")
-        ax.set_ylabel("Episode Reward (10-episode rolling mean)")
-        ax.grid(True, linestyle="--", alpha=0.5)
-        plt.tight_layout()
-        plt.savefig("training_learning_curve.png")
-        print(" -> Plot saved to training_learning_curve.png. Exiting.")
+            # Optional: Plot learning curve for this specific run
+            monitor_df = pd.read_csv(f"{log_dir}/0.monitor.csv", skiprows=1)
+            rolling_reward = monitor_df["r"].rolling(window=10, min_periods=1).mean()
+            plt.figure(figsize=(10, 6))
+            plt.plot(rolling_reward)
+            plt.title(f"PPO Training: lambda={lam}, mu={mu}")
+            plt.xlabel("Episode")
+            plt.ylabel("Reward")
+            plt.savefig(f"{log_dir}/learning_curve.png")
+            plt.close()
+
+        print(f"\n[{datetime.now().strftime('%H:%M:%S')}] All training runs complete.")
 
     except Exception as e:
         print(f"\nERROR ENCOUNTERED: {e}")
