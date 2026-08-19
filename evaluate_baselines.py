@@ -8,12 +8,39 @@ import matplotlib.pyplot as plt
 
 from src.utils import load_and_train_target
 from src.adversary import Adversary
-import src.baselines as baselines
+
+from collections import deque
+
+
+def generate_noise(shap_values, data_std, noise_level=1.0, seed_generator=np.random):
+    noise = seed_generator.normal(loc=0.0, scale=data_std, size=shap_values.shape)
+    return noise * noise_level
+
+def apply_top_k_truncation(shap_values, k=3):
+    shap_values = np.array(shap_values, dtype=np.float32)
+    if k >= len(shap_values): return shap_values.copy()
+    top_k_indices = np.argsort(np.abs(shap_values))[-k:]
+    e_output = np.zeros_like(shap_values)
+    e_output[top_k_indices] = shap_values[top_k_indices]
+    return e_output
+
+def apply_noise(shap_values, data_std, noise_level=0.1):
+    noise = generate_noise(shap_values, data_std, noise_level=noise_level)
+    return shap_values + noise
+
+def apply_precision_reduction(shap_values, decimals=2):
+    shap_values = np.array(shap_values, dtype=np.float32)
+    return np.round(shap_values, decimals=decimals)
+
+def apply_random_subset(shap_values, p=0.5):
+    shap_values = np.array(shap_values, dtype=np.float32)
+    mask = np.random.choice([0, 1], size=shap_values.shape, p=[1-p, p])
+    return shap_values * mask
 
 SEED = 42
 
 
-def evaluate_strategy(strategy_fn, X_data, target_model, explainer, num_steps=500):
+def evaluate_strategy(strategy_fn, X_data, target_model, explainer, num_steps=500, history_len=32):
     """
     Evaluates a given defense strategy against an adversary.
 
@@ -43,6 +70,8 @@ def evaluate_strategy(strategy_fn, X_data, target_model, explainer, num_steps=50
 
     # Adversary's input is the query concatenated with the explanation
     adversary = Adversary(input_dim=X_data.shape[1] * 2, feature_mean=feature_mean, feature_std=feature_std)
+    adversary_history = deque(maxlen=history_len) # Initialize the history buffer
+    
     l_extract_history = []
     utility_loss_history = []
 
@@ -51,28 +80,31 @@ def evaluate_strategy(strategy_fn, X_data, target_model, explainer, num_steps=50
         x_query = X_data[i].reshape(1, -1)
         y_target_pred = target_model.predict(x_query)
 
-        # 1. Get true explanation and apply defense strategy to get obfuscated explanation
         shap_values = explainer.shap_values(x_query)
-        # The explainer may return shape (1, n_features), but baselines expect (n_features,).
         e_true = (shap_values[0] if isinstance(shap_values, list) else shap_values).flatten()
         e_output = strategy_fn(e_true, x_query, i, num_steps)
 
-        # 2. The adversary sees the query AND the obfuscated explanation.
         e_output_2d = e_output.reshape(1, -1)
         adversary_input = np.concatenate([x_query, e_output_2d], axis=1)
 
-        # 3. Calculate extraction loss *before* the adversary trains on the new data.
-        l_extract = adversary.compute_loss(adversary_input, y_target_pred)
+        # 3. Add to history buffer and calculate extraction loss over the batch
+        adversary_history.append((adversary_input, y_target_pred))
+        history_inputs = np.vstack([item[0] for item in adversary_history])
+        history_labels = np.concatenate([item[1] for item in adversary_history])
+        
+        l_extract = adversary.compute_loss(history_inputs, history_labels)
         l_extract_history.append(l_extract)
 
-        # 4. Now, allow the adversary to train on the query and its obfuscated explanation.
+        # 4. Now, allow the adversary to train on the new data
         adversary.update(adversary_input, y_target_pred)
 
-        # 5. Calculate utility loss (distortion)
-        utility_loss = np.linalg.norm(e_true - e_output)
+        # 5. Calculate utility loss
+        e_true_norm = np.linalg.norm(e_true) + 1e-8
+        utility_loss = np.linalg.norm(e_true - e_output) / e_true_norm
         utility_loss_history.append(utility_loss)
 
     return np.mean(l_extract_history), np.mean(utility_loss_history)
+
 
 if __name__ == "__main__":
     # Set seeds for reproducibility
@@ -92,11 +124,6 @@ if __name__ == "__main__":
     e_std = np.std(_sample_shap, axis=0)
     e_std[e_std == 0] = 1e-6
 
-    # Same normalization as Adversary, needed for the dynamics trace below.
-    feature_std = np.concatenate([np.std(X_test, axis=0), e_std])
-    feature_std[feature_std == 0] = 1.0
-    feature_mean = np.concatenate([np.mean(X_test, axis=0), np.mean(_sample_shap, axis=0)])
-
     # --- Define Strategy Wrappers ---
     # Wrapper for the RL Agent
     def rl_agent_strategy(e_true, x_query, step, max_steps):
@@ -105,17 +132,17 @@ if __name__ == "__main__":
         action, _ = agent.predict(obs, deterministic=True)
         a_t = action[0]
         # Match the environment's obfuscation formula (Eq. 2).
-        noise = baselines.generate_noise(e_true, e_std, scale_fraction=1.0)
+        noise = generate_noise(e_true, e_std, noise_level=1.0)
         return (1 - a_t) * e_true + a_t * noise
 
     # Wrappers for static baselines
     def no_defense_strategy(e_true, x_query, step, max_steps): return e_true
-    def top_k_strategy(e_true, x_query, step, max_steps): return baselines.apply_top_k_truncation(e_true, k=3)
+    def top_k_strategy(e_true, x_query, step, max_steps): return apply_top_k_truncation(e_true, k=3)
     def noise_strategy(e_true, x_query, step, max_steps):
         # Scale to e_std (SHAP magnitude), not raw feature std - different units.
-        return baselines.apply_noise(e_true, data_std=e_std, noise_level=0.5)
-    def precision_strategy(e_true, x_query, step, max_steps): return baselines.apply_precision_reduction(e_true, decimals=2)
-    def subset_strategy(e_true, x_query, step, max_steps): return baselines.apply_random_subset(e_true, p=0.5)
+        return apply_noise(e_true, data_std=e_std, noise_level=0.5)
+    def precision_strategy(e_true, x_query, step, max_steps): return apply_precision_reduction(e_true, decimals=2)
+    def subset_strategy(e_true, x_query, step, max_steps): return apply_random_subset(e_true, p=0.5)
 
     strategies = {
         "No Defense": no_defense_strategy,
@@ -180,7 +207,14 @@ if __name__ == "__main__":
     # Averages can't show adaptive behavior - trace a_t and l_extract per step instead.
     np.random.seed(SEED)
     trace_steps = 200
+    # Same normalization as Adversary, needed for the dynamics trace below.
+    feature_std = np.concatenate([np.std(X_test, axis=0), e_std])
+    feature_std[feature_std == 0] = 1.0
+    feature_mean = np.concatenate([np.mean(X_test, axis=0), np.mean(_sample_shap, axis=0)])
+    # ... [Keep previous trace setup code] ...
     trace_adversary = Adversary(input_dim=X_test.shape[1] * 2, feature_mean=feature_mean, feature_std=feature_std)
+    trace_history = deque(maxlen=32) # Add history buffer for the trace
+    
     a_t_trace, l_extract_trace = [], []
     for i in range(trace_steps):
         x_query = X_test[i].reshape(1, -1)
@@ -194,10 +228,16 @@ if __name__ == "__main__":
         a_t = action[0]
         a_t_trace.append(a_t)
 
-        noise = baselines.generate_noise(e_true, e_std, scale_fraction=1.0)
+        noise = generate_noise(e_true, e_std, noise_level=1.0)
         e_output = (1 - a_t) * e_true + a_t * noise
         adversary_input = np.concatenate([x_query, e_output.reshape(1, -1)], axis=1)
-        l_extract_trace.append(trace_adversary.compute_loss(adversary_input, y_target_pred))
+        
+        # Buffer the trace extraction loss calculation
+        trace_history.append((adversary_input, y_target_pred))
+        history_inputs = np.vstack([item[0] for item in trace_history])
+        history_labels = np.concatenate([item[1] for item in trace_history])
+        
+        l_extract_trace.append(trace_adversary.compute_loss(history_inputs, history_labels))
         trace_adversary.update(adversary_input, y_target_pred)
 
     fig2, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 7), sharex=True)

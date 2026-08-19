@@ -26,6 +26,10 @@ class Adversary:
     def compute_loss(self, X_batch, y_true):
         if not self.is_initialized:
             return 1.0
+        
+        # If batch contains only one class, log_loss is undefined. Return a high loss.
+        if len(np.unique(y_true)) < 2:
+            return 1.0
 
         surrogate_probs = self.surrogate.predict_proba(self._scale(X_batch))
         return log_loss(y_true, surrogate_probs, labels=self.classes)

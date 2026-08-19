@@ -1,15 +1,21 @@
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
+from collections import deque
 
-from src.baselines import generate_noise
 from src.adversary import Adversary
 
+def generate_noise(shap_values, data_std, noise_level=1.0, seed_generator=np.random):
+    """Generates Gaussian noise scaled by data_std."""
+    noise = seed_generator.normal(loc=0.0, scale=data_std, size=shap_values.shape)
+    return noise * noise_level
+
 class XAIObfuscationEnv(gym.Env):
-    def __init__(self, X_data, target_model, explainer, lambda_param=1.0, mu_param=1.0):
+    def __init__(self, X_data, target_model, explainer, lambda_param=1.0, mu_param=0.05, history_len=32):
         super(XAIObfuscationEnv, self).__init__()
 
         self.X_data = X_data
+        self.y_data = target_model.predict(X_data)
         self.target_model = target_model
         self.explainer = explainer
 
@@ -19,6 +25,9 @@ class XAIObfuscationEnv(gym.Env):
         self.data_std = np.std(self.X_data, axis=0)
         self.n_features = X_data.shape[1]
         self.current_step = 0
+        self.history_len = history_len
+        self.adversary_history = deque(maxlen=self.history_len)
+
         self.max_steps = min(1000, len(X_data))
 
         self.action_space = spaces.Box(low=0.0, high=1.0, shape=(1,), dtype=np.float32)
@@ -47,7 +56,9 @@ class XAIObfuscationEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.current_step = 0
+        # Re-initialize adversary and its history buffer for a new episode
         self.adversary = Adversary(input_dim=self.n_features * 2, feature_mean=self.adversary_mean, feature_std=self.adversary_std)
+        self.adversary_history.clear()
         return self._get_obs(), {}
 
     def _get_obs(self):
@@ -59,26 +70,33 @@ class XAIObfuscationEnv(gym.Env):
         a_t = action[0]
 
         x_query = self.X_data[self.current_step].reshape(1, -1)
-        y_target_pred = self.target_model.predict(x_query)
+        y_target_pred = self.y_data[self.current_step].reshape(1,)
         
         # 1. Get the true explanation and apply the agent's action (obfuscation).
         shap_values = self.explainer.shap_values(x_query)
         e_true = shap_values[0] if isinstance(shap_values, list) else shap_values
         # a_t=0 -> exact explanation, a_t=1 -> full obfuscation (real-scale noise, not a tiny perturbation).
-        noise = generate_noise(e_true, self.e_std, scale_fraction=1.0, seed_generator=self.np_random)
+        noise = generate_noise(e_true, self.e_std, noise_level=1.0, seed_generator=self.np_random)
         e_output = (1 - a_t) * e_true + a_t * noise
 
         # 2. The adversary sees the query AND the obfuscated explanation.
         adversary_input = np.concatenate([x_query, e_output], axis=1)
 
-        # 3. Calculate extraction loss *before* the adversary trains on the new data.
-        l_extract = self.adversary.compute_loss(adversary_input, y_target_pred)
+        # 3. Add current sample to history and calculate extraction loss over the buffer.
+        self.adversary_history.append((adversary_input, y_target_pred))
+        history_inputs = np.vstack([item[0] for item in self.adversary_history])
+        history_labels = np.concatenate([item[1] for item in self.adversary_history])
+        l_extract = self.adversary.compute_loss(history_inputs, history_labels)
 
         # 4. Now, allow the adversary to train on the query and its obfuscated explanation.
         self.adversary.update(adversary_input, y_target_pred)
 
         # 5. Calculate the utility loss and the final reward.
-        utility_loss = np.linalg.norm(e_true - e_output)
+        # Normalize utility loss to be on a similar scale to l_extract (log_loss).
+        # This prevents the penalty term from dominating the reward signal.
+        e_true_norm = np.linalg.norm(e_true) + 1e-8
+        utility_loss = np.linalg.norm(e_true - e_output) / e_true_norm
+
         reward = (self.lambda_param * l_extract) - (self.mu_param * utility_loss)
 
         self.current_step += 1
