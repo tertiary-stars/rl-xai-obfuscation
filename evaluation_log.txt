@@ -1,0 +1,38 @@
+
+=======================================================
+TIMESTAMP: 2026-08-21 12:29:21
+PIPELINE:  Adult Income (XGBoost + SHAP)
+=======================================================
+                   Strategy  Avg. Extraction Loss (Security)  Avg. Utility Loss (Distortion)  Spearman's Rho ↑  Top-3 Agreement ↑            Type
+                 No Defense                         0.248464                        0.000000          1.000000           1.000000 Static Baseline
+                Top-K (k=3)                         0.250986                        0.144675          0.941124           1.000000 Static Baseline
+   Gaussian Noise (lvl=0.5)                         0.274254                        0.997017          0.611314           0.731333 Static Baseline
+Precision Reduction (2 dec)                         0.248468                        0.006274          0.997749           0.994000 Static Baseline
+      Random Subset (p=0.5)                         0.296077                        0.603572          0.564830           0.552667 Static Baseline
+          RL (λ=0.0, μ=1.0)                         0.248464                        0.000000          1.000000           1.000000        RL Agent
+          RL (λ=1.0, μ=0.5)                         0.248464                        0.000000          1.000000           1.000000        RL Agent
+          RL (λ=1.0, μ=0.2)                         0.248464                        0.000000          1.000000           1.000000        RL Agent
+          RL (λ=1.0, μ=0.1)                         0.248464                        0.000000          1.000000           1.000000        RL Agent
+         RL (λ=1.0, μ=0.05)                         0.257550                        0.024615          0.986171           0.986667        RL Agent
+         RL (λ=1.0, μ=0.01)                         0.312179                        0.845807          0.565143           0.710667        RL Agent
+          RL (λ=1.0, μ=0.0)                         0.312788                        1.034102          0.469371           0.671333        RL Agent
+
+
+=======================================================
+TIMESTAMP: 2026-08-21 12:36:08
+PIPELINE:  Credit Card (DNN + LIME)
+=======================================================
+                   Strategy  Avg. Extraction Loss (Security)  Avg. Utility Loss (Distortion)  Spearman's Rho ↑  Top-3 Agreement ↑            Type
+                 No Defense                         0.991585                        0.000000          1.000000           1.000000 Static Baseline
+                Top-K (k=3)                         0.987773                        0.770182          0.528731           1.000000 Static Baseline
+   Gaussian Noise (lvl=0.5)                         0.984138                        0.662956          0.807614           0.527333 Static Baseline
+Precision Reduction (2 dec)                         0.983225                        0.491624          0.828449           0.485333 Static Baseline
+      Random Subset (p=0.5)                         0.985825                        0.708359          0.644454           0.462667 Static Baseline
+          RL (λ=0.0, μ=1.0)                         0.987240                        0.000000          1.000000           1.000000        RL Agent
+          RL (λ=1.0, μ=0.5)                         0.989083                        0.001201          0.999708           0.999333        RL Agent
+          RL (λ=1.0, μ=0.2)                         0.990110                        0.012896          0.995356           0.988000        RL Agent
+          RL (λ=1.0, μ=0.1)                         0.984820                        0.039196          0.983902           0.970000        RL Agent
+         RL (λ=1.0, μ=0.05)                         0.987885                        0.049346          0.977625           0.965333        RL Agent
+         RL (λ=1.0, μ=0.01)                         0.983497                        0.130573          0.946349           0.898667        RL Agent
+          RL (λ=1.0, μ=0.0)                         0.990951                        0.216321          0.915109           0.838667        RL Agent
+

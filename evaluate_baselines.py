@@ -9,6 +9,8 @@ import seaborn as sns
 from stable_baselines3 import PPO
 import torch
 from tqdm import tqdm
+from scipy.stats import spearmanr
+from datetime import datetime
 
 from src.adversary import Adversary
 from src.utils import load_and_train_adult_xgb, load_and_train_credit_dnn
@@ -75,6 +77,10 @@ def evaluate_strategy(
 
     l_extract_history = []
     utility_loss_history = []
+    
+    # --- NEW: History trackers for Reviewer metrics ---
+    spearman_history = []
+    top_k_agreement_history = []
 
     print(f"Evaluating strategy: {strategy_fn.__name__}...")
     for i in tqdm(range(min(num_steps, len(X_data)))):
@@ -99,11 +105,30 @@ def evaluate_strategy(
 
         adversary.update(adversary_input, y_target_pred)
 
+        # 1. Original L2 Distortion
         e_true_norm = np.linalg.norm(e_true) + 1e-8
         utility_loss = np.linalg.norm(e_true - e_output) / e_true_norm
         utility_loss_history.append(utility_loss)
+        
+        # --- NEW: 2. Spearman's Rank Correlation ---
+        rho, _ = spearmanr(e_true, e_output)
+        if np.isnan(rho):  # Handle edge cases where vectors are constant
+            rho = 0.0
+        spearman_history.append(rho)
+        
+        # --- NEW: 3. Top-Feature Agreement (k=3) ---
+        k = min(3, len(e_true))
+        top_k_true = set(np.argsort(np.abs(e_true))[-k:])
+        top_k_out = set(np.argsort(np.abs(e_output))[-k:])
+        agreement = len(top_k_true.intersection(top_k_out)) / k
+        top_k_agreement_history.append(agreement)
 
-    return np.mean(l_extract_history), np.mean(utility_loss_history)
+    return (
+        np.mean(l_extract_history), 
+        np.mean(utility_loss_history),
+        np.mean(spearman_history),
+        np.mean(top_k_agreement_history)
+    )
 
 
 def plot_pareto_front(results_df, dataset_name, plot_filename):
@@ -289,7 +314,8 @@ def run_pipeline_evaluation(pipeline_name, load_fn, model_prefix, plot_filename)
     results = []
     print("\n2. Evaluating static defense strategies...")
     for name, strategy_fn in static_strategies.items():
-        l_extract, utility_loss = evaluate_strategy(
+        # Update here to unpack all 4 values
+        l_extract, utility_loss, spearman, top_k_agree = evaluate_strategy(
             strategy_fn, X_test, target_model, explainer
         )
         results.append(
@@ -297,6 +323,8 @@ def run_pipeline_evaluation(pipeline_name, load_fn, model_prefix, plot_filename)
                 "Strategy": name,
                 "Avg. Extraction Loss (Security)": l_extract,
                 "Avg. Utility Loss (Distortion)": utility_loss,
+                "Spearman's Rho ↑": spearman,
+                "Top-3 Agreement ↑": top_k_agree,
                 "Type": "Static Baseline",
             }
         )
@@ -339,7 +367,9 @@ def run_pipeline_evaluation(pipeline_name, load_fn, model_prefix, plot_filename)
         strat_fn = make_rl_strategy(current_agent)
         strat_fn.__name__ = f"rl_l{lam}_m{mu}"
         name = f"RL (λ={lam}, μ={mu})"
-        l_extract, utility_loss = evaluate_strategy(
+        
+        # Update here to unpack all 4 values
+        l_extract, utility_loss, spearman, top_k_agree = evaluate_strategy(
             strat_fn, X_test, target_model, explainer
         )
 
@@ -348,18 +378,31 @@ def run_pipeline_evaluation(pipeline_name, load_fn, model_prefix, plot_filename)
                 "Strategy": name,
                 "Avg. Extraction Loss (Security)": l_extract,
                 "Avg. Utility Loss (Distortion)": utility_loss,
+                "Spearman's Rho ↑": spearman,
+                "Top-3 Agreement ↑": top_k_agree,
                 "Type": "RL Agent",
             }
         )
 
     print(f"\n4. Evaluation Complete for {pipeline_name}. Results:\n")
     results_df = pd.DataFrame(results)
+    
+    # Print to terminal
     print(results_df.to_string(index=False))
+
+    # --- NEW: Append to a persistent log file ---
+    log_filename = "evaluation_log.txt"
+    with open(log_filename, "a", encoding="utf-8") as log_file:
+        log_file.write(f"\n=======================================================\n")
+        log_file.write(f"TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        log_file.write(f"PIPELINE:  {pipeline_name}\n")
+        log_file.write(f"=======================================================\n")
+        log_file.write(results_df.to_string(index=False) + "\n\n")
+    print(f" -> Results appended to {log_filename}")
 
     print("\n5. Generating Pareto front plot...")
     plot_pareto_front(results_df, pipeline_name, plot_filename)
     return results_df
-
 
 if __name__ == "__main__":
     np.random.seed(SEED)
