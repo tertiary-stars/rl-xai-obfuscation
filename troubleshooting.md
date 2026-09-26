@@ -12,12 +12,12 @@ The PPO agent quickly learned to always output an action `a_t` of 0. This corres
 **Root Causes & Solutions:**
 
 **A. Unbalanced Reward Scaling:**
-*   **Problem:** The `utility_loss` was calculated as the raw L2 norm (`np.linalg.norm(e_true - e_output)`), which produced values on a much larger scale (e.g., 1.0-10.0) than the `l_extract` (log-loss, typically 0.5-1.5). The penalty for distortion was so high that it completely overpowered any potential reward from increasing security.
-*   **Solution:** We normalized the `utility_loss` to bring it to a similar mathematical scale as the extraction loss. The new calculation is `np.linalg.norm(e_true - e_output) / (np.linalg.norm(e_true) + 1e-8)`. Additionally, we lowered the default `mu_param` (the weight for the utility penalty) from `1.0` to `0.05` to further rebalance the reward signal.
+*   **Problem:** The `distortion` (formerly `utility_loss`) was calculated as the raw L2 norm (`np.linalg.norm(e_true - e_output)`), which produced values on a much larger scale (e.g., 1.0-10.0) than the `adversary_error` (formerly `l_extract`) (log-loss, typically 0.5-1.5). The penalty for distortion was so high that it completely overpowered any potential reward from increasing security.
+*   **Solution:** We normalized the `distortion` (formerly `utility_loss`) to bring it to a similar mathematical scale as the extraction loss. The new calculation is `np.linalg.norm(e_true - e_output) / (np.linalg.norm(e_true) + 1e-8)`. Additionally, we lowered the default `mu_param` (the weight for the utility penalty) from `1.0` to `0.05` to further rebalance the reward signal.
 
 **B. Noisy and Unstable Extraction Loss Signal:**
-*   **Problem:** The `l_extract` was calculated based on the adversary's performance on a single data point. The `log_loss` for one sample is highly volatile and provides a very noisy gradient for the PPO agent, making it difficult to learn a stable policy.
-*   **Solution:** We implemented a rolling history buffer (`deque` of size 32) in the `XAIObfuscationEnv`. The `l_extract` is now calculated as the average loss over this entire buffer. This smooths out the reward signal, providing a much more stable gradient for the agent to learn from.
+*   **Problem:** The `adversary_error` (formerly `l_extract`) was calculated based on the adversary's performance on a single data point. The `log_loss` for one sample is highly volatile and provides a very noisy gradient for the PPO agent, making it difficult to learn a stable policy.
+*   **Solution:** We implemented a rolling history buffer (`deque` of size 32) in the `XAIObfuscationEnv`. The `adversary_error` (formerly `l_extract`) is now calculated as the average loss over this entire buffer. This smooths out the reward signal, providing a much more stable gradient for the agent to learn from.
 
 ---
 
@@ -40,3 +40,14 @@ A concern was raised that if the adversary receives both the feature vector (`x_
 **Root Cause:**
 *   **Problem:** This is a fundamental design choice in simulating an explanation-aware attack. Does the adversary use the explanation to augment its knowledge, or does it rely on it entirely?
 *   **Solution (Decision):** We decided to **preserve the original input structure** (`np.concatenate([x_query, e_output], axis=1)`). The goal is to model an adversary that *is* explanation-aware and uses them to improve its attack. Forcing the adversary to rely *only* on the explanation would change the problem definition. The fixes for reward scaling and loss stability (see Issue #1) were deemed sufficient to force the agent to learn a meaningful policy without altering this core interaction model.
+---
+
+### 4. Issue: State did not encode the query history; "loss" naming was misleading (reviewer feedback)
+
+**Symptom:**
+The paper says the agent "examines the input's relation to historical queries", but the state was only `[x_t, t/T_max]`. Every episode also replayed the same first `T_max` training rows in the same order. In addition, the security signal was called "extraction loss", which readers took to be something to minimise, although the defender maximises it.
+
+**Solution:**
+* `src/environment.py` (`HistoryEncoder`) encodes the history in a fixed size as a rolling window of the last k standardised queries (`--histories window`). `none` keeps the old history-free state as an ablation. A running-statistics encoding was considered but not used, because it averages away the local query patterns that extraction produces.
+* Each episode samples a random session from the training pool.
+* Renamed `l_extract` / "extraction loss" to **adversary error** (the surrogate's cross-entropy, which the defender wants high) and `utility_loss` to **explanation distortion**.

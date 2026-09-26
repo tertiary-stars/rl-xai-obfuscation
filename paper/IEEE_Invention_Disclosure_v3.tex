@@ -2,6 +2,7 @@
 \IEEEoverridecommandlockouts
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
@@ -63,7 +64,9 @@ Security and privacy concerns in AI, particularly regarding model extraction att
     \item \textbf{Adding Noise:} Intentionally distorting outputs makes it harder to reverse engineer the model, but it compromises the fidelity of the explanation \cite{b4}. This results in a potential loss of interpretability and reliability for legitimate users.
 \end{itemize}
 
-Unlike these static methods, our proposed solution utilizes dynamic obfuscation via an RL agent, adapting to user behavior to maintain explainability without compromising privacy.
+A different line of work \emph{detects} extraction instead of perturbing every response. PRADA \cite{b5} keeps, for every client, the minimum distance between each new query and the client's earlier queries. It flags the client once these distances stop following a normal distribution, which is typical for attacks that synthesise queries by perturbing earlier ones. Detection is binary and acts only after enough queries have been observed; moreover, an adversary that queries natural data is by construction indistinguishable from a benign client.
+
+Unlike these static or detection-based methods, our proposed solution utilizes dynamic obfuscation via an RL agent that sets the degree of obfuscation for \emph{every} query from the user's query history, adapting to user behavior to maintain explainability without compromising privacy.
 
 \section{Proposed System Architecture}
 The system consists of an inference provider who manages the ML model along with its associated explainability module. The RL agent acts as a protective mechanism that decides how much information to conceal or modify in an explanation.
@@ -94,7 +97,7 @@ The workflow operates as follows (see Fig.~\ref{fig2}):
     \item An input query is submitted to the system.
     \item The input is processed on the model, generating an output.
     \item The input is simultaneously sent to the RL agent for analysis.
-    \item The RL agent examines the input's relation to historical queries and determines the degree of obfuscation required.
+    \item The RL agent encodes the input together with the user's recent query history into a fixed-size state (Section~\ref{sec:state}) and, from this state, determines the degree of obfuscation required.
     \item The XAI module receives the output and generates a baseline explanation, which is sent to the RL agent.
     \item The RL agent decides whether to apply obfuscation to the explanation via the obfuscation module.
     \item The processed output and the (potentially obfuscated) explanation are returned to the user.
@@ -110,34 +113,77 @@ The RL agent is trained using a game-based framework designed to enhance model s
 \end{figure}
 
 \subsection{Min-Max Game Formulation}
-\textbf{Step 1: State at time $t$}\\
-The state $s_{i}$ at time $t$ is the history of queries received from a specific user, where $x_{i}$ is the query and $y_{i}$ is the output.
-\begin{equation}
-s_i = \{(x_1, y_1), (x_2, y_2), \dots, (x_i, y_i)\}
-\end{equation}
+A training episode simulates one user \emph{session} of $T_{max}$ queries $x_1,\dots,x_{T_{max}}$, $x_t\in\mathbb{R}^d$. At every step $t$ the RL agent (defender) chooses how strongly to obfuscate the explanation of $x_t$; the adversary then learns from what it received. The quantities exchanged at step $t$ are defined below.
 
-\textbf{Step 2: RL Agent Action}\\
-The RL agent determines an obfuscation function $f_{obfus}$ to apply to the true explanation $E_{true}$. The action $a_t$ is a continuous variable representing the intensity of abstraction:
+\textbf{Step 1: State --- the query history in fixed size.}\label{sec:state}
+Conceptually, the information available to the defender at step $t$ is the whole session history $\{x_1,\dots,x_t\}$. This set grows with $t$, whereas the agent's policy is a neural network with a fixed input size. We therefore encode the history into a fixed-size vector $s_t$. Queries are first standardised with the training-set mean and standard deviation, $z_t = (x_t-\bar{x})/\sigma_x$, and the state is a \textbf{rolling window} of the user's last $k$ queries:
 \begin{equation}
-E_{output} = a_t(E_{true})
+s_t = \left[\, z_{t-k+1}, \dots, z_{t-1}, z_t,\; t/T_{max} \,\right] \in \mathbb{R}^{kd+1}.
+\label{eq:state_window}
 \end{equation}
-If $a_t = 0$, $E_{output} = E_{true}$ (full explanation). If $a_t = 1$, $E_{output}$ is random noise or no explanation (full obfuscation).
+At the start of a session ($t<k$) the missing slots are zero, i.e.\ the feature mean, and $t/T_{max}$ tells the agent how many slots are real. The size of $s_t$ does not depend on $t$, so a fixed multilayer perceptron can process it. The window lets the agent relate the current query to the user's preceding queries. We prefer it to running statistics of the whole session (e.g.\ its mean and standard deviation) because extraction attacks show up as \emph{local} patterns in the query sequence --- bursts of near-duplicate queries, or new queries that are small perturbations of the previous few. The window preserves the order and recency of queries, whereas session-wide statistics average such bursts away, increasingly so as the session grows. As an ablation, $s_t=[z_t,\,t/T_{max}]$ carries no history; comparing the two isolates the contribution of the query history.
 
-\textbf{Step 3: Adversary Action}\\
-The adversary leverages $E_{output}$ to construct a surrogate model $S$ targeting the original model $M$. The adversary minimizes the extraction loss $L_{extract}$:
+\textbf{Step 2: RL agent action --- the obfuscation level.}
+Given $s_t$, the policy $\pi$ outputs a continuous action $a_t=\pi(s_t)\in[0,1]$. Let $E_{true}(x_t)\in\mathbb{R}^d$ be the attribution vector (SHAP or LIME) of the target model $M$ at $x_t$. The released explanation interpolates between the true explanation and noise:
 \begin{equation}
-\min L_{extract}(S(x), M(x) | E_{output})
+E_{out}(x_t) = (1-a_t)\,E_{true}(x_t) + a_t\,\varepsilon_t,
+\label{eq:obfuscation}
 \end{equation}
+with noise $\varepsilon_t\sim\mathcal{N}\!\left(0,\mathrm{diag}(\sigma_E^2)\right)$, where $\sigma_E$ is the per-feature standard deviation of true explanations, so the noise has the same scale as a real explanation. $a_t=0$ releases the exact explanation; $a_t=1$ releases pure noise (full obfuscation).
 
-\textbf{Step 4: Reward Function}\\
-The reward function $R_t$ balances security (maximizing adversary loss) and utility (minimizing explanation deviation). 
+\textbf{Step 3: Adversary action --- online surrogate training.}
+The adversary receives $M(x_t)$ and $E_{out}(x_t)$ and trains a surrogate model $S$ (a two-layer MLP) online, one query at a time, on inputs $[x_t, E_{out}(x_t)]$ with labels $M(x_t)$. The surrogate is trained to minimise its cross-entropy with the target's labels. To measure how successful the extraction currently is, we evaluate this cross-entropy on the adversary's last $W$ queries \emph{before} the surrogate learns from $x_t$:
 \begin{equation}
-R_t = \lambda \cdot L_{extract}(S, M) - \mu \cdot ||E_{true} - E_{output}||
+\mathcal{E}_t = -\frac{1}{|B_t|}\sum_{j\in B_t} \log S\!\left(M(x_j)\,\middle|\,x_j, E_{out}(x_j)\right),
+\label{eq:adv_error}
 \end{equation}
-Where $\lambda$ and $\mu$ are non-negative scalar hyperparameters weighing the importance of model security and explanation fidelity, respectively.
+with $B_t=\{\max(1,t-W+1),\dots,t\}$ and $W=32$. We call $\mathcal{E}_t$ the \textbf{adversary error}. It is the surrogate's own training objective, which the adversary tries to drive down. For the defender it is a \emph{security score}: a high $\mathcal{E}_t$ means the surrogate imitates $M$ poorly. The defender therefore \emph{maximises} $\mathcal{E}_t$, and this opposition is the min-max game. Averaging over the $W$ most recent queries, rather than using the current query alone, gives a much less noisy signal.
+
+\textbf{Step 4: Reward function.}
+The cost of obfuscation for a legitimate user is the relative change of the explanation, the \textbf{explanation distortion}
+\begin{equation}
+D_t = \frac{\lVert E_{true}(x_t) - E_{out}(x_t)\rVert_2}{\lVert E_{true}(x_t)\rVert_2},
+\label{eq:distortion}
+\end{equation}
+which is $0$ for an exact explanation and around $1$ or more for pure noise. Normalising by $\lVert E_{true}\rVert_2$ puts $D_t$ on the same scale as $\mathcal{E}_t$. The reward balances security against distortion:
+\begin{equation}
+R_t = \lambda\,\mathcal{E}_t - \mu\,D_t,
+\label{eq:reward}
+\end{equation}
+where $\lambda\ge0$ weighs security and $\mu\ge0$ weighs explanation fidelity. Since scaling $R_t$ by a positive constant does not change the optimal policy, the trade-off is governed by the ratio $\lambda/\mu$; we sweep both weights, which also verifies this empirically.
+
+\textbf{Training.} Every episode draws a new session of $T_{max}$ queries in random order and starts a fresh adversary, so the agent must respond to the history it observes rather than memorise a fixed query sequence. The policy is trained with Proximal Policy Optimization (PPO) to maximise $\sum_t R_t$. Algorithm~\ref{alg:training} summarises one episode.
+
+\begin{algorithm}[t]
+\caption{One training episode (one simulated session)}
+\label{alg:training}
+\begin{algorithmic}[1]
+\STATE Sample queries $x_1,\dots,x_{T_{max}}$; reset surrogate $S$ and history
+\FOR{$t = 1$ \TO $T_{max}$}
+    \STATE $s_t \leftarrow [z_{t-k+1},\dots,z_t,\,t/T_{max}]$ \hfill Eq.~(\ref{eq:state_window})
+    \STATE $a_t \leftarrow \pi(s_t)$;\; $E_{out}\leftarrow(1-a_t)E_{true}(x_t)+a_t\varepsilon_t$
+    \STATE Release $M(x_t)$ and $E_{out}$ to the user
+    \STATE $\mathcal{E}_t \leftarrow$ adversary error of $S$ on the last $W$ queries
+    \STATE $D_t \leftarrow \lVert E_{true}-E_{out}\rVert/\lVert E_{true}\rVert$;\; $R_t \leftarrow \lambda\mathcal{E}_t-\mu D_t$
+    \STATE Update $S$ on $([x_t,E_{out}],\,M(x_t))$ \hfill adversary learns
+    \STATE Store $(s_t,a_t,R_t)$ for the PPO update of $\pi$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Security-Utility Tradeoff}
-By adjusting $\lambda$ and $\mu$, the system designer controls the emphasis on security versus utility. High $\lambda$ prioritizes preventing model extraction, forcing the agent to obscure data even if explanation quality drops. High $\mu$ penalizes obfuscation, yielding clear explanations but higher extraction risks. A balanced approach applies obfuscation only as needed to mitigate risk.
+By adjusting $\lambda$ and $\mu$, the system designer controls the emphasis on security versus utility. High $\lambda$ prioritizes preventing model extraction, forcing the agent to obscure explanations even if their quality drops. High $\mu$ penalizes obfuscation, yielding clear explanations but higher extraction risks. A balanced setting applies obfuscation only as needed to mitigate risk.
+
+\section{Experimental Setup}
+\textbf{Pipelines.} (i) Adult Income with an XGBoost target model explained by SHAP (TreeExplainer); (ii) Credit Card Fraud with a neural-network target model explained by LIME.
+
+\textbf{Attackers.} The \emph{natural-query} attacker owns natural data and queries it in random order, as in training. The \emph{synthetic-query} attacker owns only 10 seed samples. It generates new queries by perturbing earlier ones with random-sign steps of $0.1\sigma_x$ on a random subset of features, in the spirit of the augmentation-based attacks PRADA targets. Every strategy is evaluated on the same query sessions of 500 queries.
+
+\textbf{Baselines.} No defence, Top-$k$ truncation ($k=3$), additive Gaussian noise ($0.5\sigma_E$), precision reduction (2 decimals), random feature subset ($p=0.5$), and PRADA \cite{b5}. PRADA is used as a gate in front of the explainer: explanations are exact until the client is flagged and fully obfuscated ($a_t=1$) afterwards. We implement its detection algorithm as published, using the L2 distance between standardised tabular features. The threshold $\delta$ is set to the largest value that raises no alarm on benign sessions of natural queries.
+
+\textbf{Metrics.} Security: the adversary error $\mathcal{E}_t$ (Eq.~\ref{eq:adv_error}, higher is better). Utility: the explanation distortion $D_t$ (Eq.~\ref{eq:distortion}, lower is better), Spearman's rank correlation between $E_{true}$ and $E_{out}$, and the agreement of their top-3 features (both higher is better). All four are averaged over the session.
+
+\textbf{RL agents.} We train agents on the full grid $\lambda\in\{0, 0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5\}\times\mu\in\{0.01, 0.05, 0.1, 0.5\}$, each with the rolling-window state ($k=8$) and the no-history ablation, over several random seeds. For each $\mu$, the figures report all four metrics as a function of $\lambda$.
 
 \section{Advantages of the Proposed Solution}
 The dynamic integration of the RL agent provides several technical benefits:
@@ -153,6 +199,7 @@ The dynamic integration of the RL agent provides several technical benefits:
 \bibitem{b2} Z. Yue, Z. He, H. Zeng, and J. McAuley, ``Black-box attacks on sequential recommenders via data-free model extraction,'' in \textit{Proc. 15th ACM Conf. Recommender Syst. (RecSys '21)}, New York, NY, USA, 2021, pp. 44-54.
 \bibitem{b3} F. Tram\`er, F. Zhang, A. Juels, M. K. Reiter, and T. Ristenpart, ``Stealing machine learning models via prediction APIs,'' in \textit{Proc. 25th USENIX Security Symp. (USENIX Security 16)}, Austin, TX, USA, 2016, pp. 601-618.
 \bibitem{b4} S. Saifullah, D. Mercier, A. Lucieri, A. Dengel, and S. Ahmed, ``The privacy-explainability trade-off: unraveling the impacts of differential privacy and federated learning on attribution methods,'' \textit{Front. Artif. Intell.}, vol. 7, art. no. 1236947, Jul. 2024.
+\bibitem{b5} M. Juuti, S. Szyller, S. Marchal, and N. Asokan, ``PRADA: Protecting against DNN model stealing attacks,'' in \textit{Proc. IEEE European Symp. Security and Privacy (EuroS\&P)}, Stockholm, Sweden, 2019, pp. 512-527.
 \end{thebibliography}
 
 \end{document}

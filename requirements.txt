@@ -1,11 +1,14 @@
 numpy
+scipy
 torch
 pandas
 matplotlib
 stable-baselines3[extra]
 tqdm
 scikit-learn
-xgboost
+xgboost<3.1  # shap's TreeExplainer cannot parse models saved by xgboost>=3.1
 shap
+lime
+joblib
 gymnasium
 openml

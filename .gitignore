@@ -20,3 +20,6 @@ env/
 *.joblib
 *.h5
 .ipynb_checkpoints/
+# Experiment outputs
+cache/
+logs/
