@@ -1,0 +1,12 @@
+{
+  "dataset": "credit",
+  "lambda": 0.5,
+  "mu": 0.05,
+  "history": "window",
+  "state_window": 8,
+  "seed": 44,
+  "timesteps": 500000,
+  "max_steps": 1000,
+  "adv_window": 32,
+  "train_seconds": 2230.317544
+}

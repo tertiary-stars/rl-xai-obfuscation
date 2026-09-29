@@ -1,0 +1,20 @@
+[
+  {
+    "strategy": "RL (λ=0.5, μ=0.05)",
+    "type": "RL Agent",
+    "lambda": 0.5,
+    "mu": 0.05,
+    "seed": 42,
+    "history": "window",
+    "state_window": 8,
+    "adversary_error": 0.08598535404381567,
+    "distortion": 0.3935129294337829,
+    "spearman": 0.8060472906403939,
+    "top3": 0.7611111111111111,
+    "adversary_error_std": 0.01279795888653521,
+    "distortion_std": 0.030951822726282135,
+    "spearman_std": 0.016917470704343338,
+    "top3_std": 0.017691457099995683,
+    "mean_action": 0.21667848509550094
+  }
+]

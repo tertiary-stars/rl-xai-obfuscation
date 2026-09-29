@@ -1,0 +1,67 @@
+// ==========================================
+// Initialization phase
+// ==========================================
+Initialize Target Model M
+Initialize XAI Module to generate baseline explanations
+Initialize RL Agent (Defender) with policy π
+Initialize Adversary Surrogate Model S
+Define hyperparameters:
+    λ (security weight)
+    μ (utility weight)
+    T (max steps per episode/user interaction)
+
+// ==========================================
+// Main Adversarial Min-Max Game Loop
+// ==========================================
+For each episode (simulating a unique user/attacker session):
+
+    // Reset state for the new session
+    Initialize empty query history state: s_0 = {}
+    Reset Adversary Surrogate Model S parameters
+
+    For time step t = 1 to T:
+
+        // 1. Process Input Query
+        Receive input query x_t from user
+        Compute target model output: y_t = M(x_t)
+
+        // 2. State formulation (Step 1 of paper)
+        Update history state s_t: Append current query and output to history
+        s_t = {(x_1, y_1), (x_2, y_2), ..., (x_t, y_t)}
+
+        // 3. True Explanation Generation
+        Compute baseline true explanation: E_true = XAI(M, x_t)
+
+        // 4. RL Agent Action & Obfuscation (Step 2 of paper)
+        Agent observes state s_t and outputs continuous action a_t ∈ [0, 1]
+        Determine obfuscation function f_obfus based on a_t
+        Apply obfuscation to true explanation:
+        E_output = a_t(E_true)
+
+        // Note:
+        // If a_t == 0: E_output = E_true (full explanation, no obfuscation)
+        // If a_t == 1: E_output = random noise or None (full obfuscation)
+
+        // 5. System Output Delivery
+        Return y_t and E_output to the user/adversary
+
+        // 6. Adversary Action (Step 3 of paper)
+        Adversary receives x_t, y_t, and E_output
+        Adversary trains Surrogate Model S to minimize extraction loss:
+        Optimize S to achieve min L_extract(S(x_t), M(x_t) | E_output)
+
+        // 7. Reward Calculation (Step 4 of paper)
+        Calculate current extraction loss of the surrogate: L_extract(S, M)
+        Calculate explanation utility deviation: || E_true - E_output ||
+
+        Compute step reward R_t for the RL Agent:
+        R_t = (λ * L_extract(S, M)) - (μ * || E_true - E_output ||)
+
+        // 8. Agent Optimization
+        Store transition (s_{t-1}, a_t, R_t, s_t) in agent memory
+        Update RL Agent policy π using R_t to maximize future rewards
+
+    End For
+End For
+
+Return trained RL Agent Policy π

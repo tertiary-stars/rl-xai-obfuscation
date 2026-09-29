@@ -1,0 +1,86 @@
+[
+  {
+    "strategy": "No Defense",
+    "type": "Static Baseline",
+    "adversary_error": 0.08662452716354335,
+    "distortion": 0.0,
+    "spearman": 0.9999999999999997,
+    "top3": 1.0,
+    "adversary_error_std": 0.013744682837087352,
+    "distortion_std": 0.0,
+    "spearman_std": 1.1102230246251565e-16,
+    "top3_std": 0.0,
+    "defence_ms": 0.0021340001694625244
+  },
+  {
+    "strategy": "Top-K (k=3)",
+    "type": "Static Baseline",
+    "adversary_error": 0.08222283392620368,
+    "distortion": 0.7632473821842249,
+    "spearman": 0.5287311701103931,
+    "top3": 1.0,
+    "adversary_error_std": 0.011652383124267472,
+    "distortion_std": 0.0008447172538776429,
+    "spearman_std": 0.0,
+    "top3_std": 0.0,
+    "defence_ms": 0.010830999599420466
+  },
+  {
+    "strategy": "Gaussian Noise (lvl=0.5)",
+    "type": "Static Baseline",
+    "adversary_error": 0.08116622799270413,
+    "distortion": 0.7063664403122227,
+    "spearman": 0.7966765188834152,
+    "top3": 0.5255555555555557,
+    "adversary_error_std": 0.013967835862920216,
+    "distortion_std": 0.007535001180950181,
+    "spearman_std": 0.0040602476879764,
+    "top3_std": 0.008024653371230152,
+    "defence_ms": 0.02284299989696592
+  },
+  {
+    "strategy": "Precision Reduction (2 dec)",
+    "type": "Static Baseline",
+    "adversary_error": 0.08509263289322998,
+    "distortion": 0.5642751395321236,
+    "spearman": 0.7727822429595222,
+    "top3": 0.44377777777777777,
+    "adversary_error_std": 0.013731160531470856,
+    "distortion_std": 0.004772167821752241,
+    "spearman_std": 0.004100869662064839,
+    "top3_std": 0.011159892915101987,
+    "defence_ms": 0.007935001121950336
+  },
+  {
+    "strategy": "Random Subset (p=0.5)",
+    "type": "Static Baseline",
+    "adversary_error": 0.09326325495029454,
+    "distortion": 0.6977171022673749,
+    "spearman": 0.6469298493396178,
+    "top3": 0.49866666666666665,
+    "adversary_error_std": 0.015636931579711504,
+    "distortion_std": 0.0041990092910217484,
+    "spearman_std": 0.0045767331389536346,
+    "top3_std": 0.0014401645996462039,
+    "defence_ms": 0.009518000297248363
+  },
+  {
+    "strategy": "PRADA",
+    "type": "PRADA",
+    "adversary_error": 0.08662452716354335,
+    "distortion": 0.0,
+    "spearman": 0.9999999999999997,
+    "top3": 1.0,
+    "adversary_error_std": 0.013744682837087352,
+    "distortion_std": 0.0,
+    "spearman_std": 1.1102230246251565e-16,
+    "top3_std": 0.0,
+    "defence_ms": 0.44621300003200304,
+    "prada_delta": 0.7028376419512394,
+    "prada_detected_at": [
+      null,
+      null,
+      null
+    ]
+  }
+]

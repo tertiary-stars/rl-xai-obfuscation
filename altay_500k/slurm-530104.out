@@ -1,0 +1,334 @@
+[Sun Sep 27 23:19:03 +03 2026] timing
+[23:19:26] (1/2) prepared adult
+[23:19:26] (2/2) prepared credit
+[prepare] cache/credit.joblib already exists (use --force to rebuild).
+[prepare] cache/adult.joblib already exists (use --force to rebuild).
+[Sun Sep 27 23:19:27 +03 2026] training on 64 workers
+[23:55:56] (1/60) trained runs/adult/window_k8/lam0.5_mu0.05_seed42
+[23:55:57] (2/60) trained runs/adult/none/lam0.5_mu0.05_seed43
+[23:56:00] (3/60) trained runs/adult/window_k8/lam2_mu0.05_seed44
+[23:56:02] (4/60) trained runs/adult/window_k8/lam0_mu0.05_seed44
+[23:56:07] (5/60) trained runs/adult/none/lam2_mu0.05_seed43
+[23:56:09] (6/60) trained runs/adult/none/lam1_mu0.05_seed43
+[23:56:12] (7/60) trained runs/adult/window_k8/lam0_mu0.05_seed42
+[23:56:12] (8/60) trained runs/adult/none/lam2_mu0.05_seed42
+[23:56:12] (9/60) trained runs/adult/window_k8/lam1_mu0.05_seed43
+[23:56:13] (10/60) trained runs/adult/none/lam0.5_mu0.05_seed42
+[23:56:14] (11/60) trained runs/credit/window_k8/lam0_mu0.05_seed42
+[23:56:14] (12/60) trained runs/adult/none/lam0_mu0.05_seed42
+[23:56:18] (13/60) trained runs/adult/window_k8/lam0_mu0.05_seed43
+[23:56:20] (14/60) trained runs/credit/none/lam0.5_mu0.05_seed43
+[23:56:20] (15/60) trained runs/credit/window_k8/lam2_mu0.05_seed44
+[23:56:21] (16/60) trained runs/adult/window_k8/lam0.5_mu0.05_seed43
+[23:56:21] (17/60) trained runs/adult/window_k8/lam1_mu0.05_seed44
+[23:56:23] (18/60) trained runs/adult/none/lam0.5_mu0.05_seed44
+[23:56:24] (19/60) trained runs/credit/window_k8/lam0.5_mu0.05_seed42
+[23:56:24] (20/60) trained runs/credit/none/lam0.5_mu0.05_seed42
+[23:56:24] (21/60) trained runs/adult/window_k8/lam1_mu0.05_seed42
+[23:56:25] (22/60) trained runs/adult/none/lam0_mu0.05_seed43
+[23:56:25] (23/60) trained runs/adult/window_k8/lam0.5_mu0.05_seed44
+[23:56:25] (24/60) trained runs/adult/none/lam1_mu0.05_seed42
+[23:56:27] (25/60) trained runs/adult/none/lam5_mu0.05_seed42
+[23:56:28] (26/60) trained runs/credit/none/lam2_mu0.05_seed42
+[23:56:29] (27/60) trained runs/adult/window_k8/lam2_mu0.05_seed42
+[23:56:29] (28/60) trained runs/credit/window_k8/lam5_mu0.05_seed42
+[23:56:29] (29/60) trained runs/adult/none/lam2_mu0.05_seed44
+[23:56:31] (30/60) trained runs/credit/none/lam5_mu0.05_seed43
+[23:56:31] (31/60) trained runs/credit/window_k8/lam5_mu0.05_seed44
+[23:56:34] (32/60) trained runs/credit/none/lam5_mu0.05_seed44
+[23:56:38] (33/60) trained runs/adult/none/lam5_mu0.05_seed43
+[23:56:39] (34/60) trained runs/adult/window_k8/lam2_mu0.05_seed43
+[23:56:39] (35/60) trained runs/credit/window_k8/lam2_mu0.05_seed43
+[23:56:43] (36/60) trained runs/credit/none/lam0_mu0.05_seed44
+[23:56:44] (37/60) trained runs/adult/none/lam0_mu0.05_seed44
+[23:56:45] (38/60) trained runs/credit/none/lam1_mu0.05_seed44
+[23:56:48] (39/60) trained runs/credit/window_k8/lam1_mu0.05_seed42
+[23:56:48] (40/60) trained runs/adult/window_k8/lam5_mu0.05_seed43
+[23:56:51] (41/60) trained runs/credit/window_k8/lam2_mu0.05_seed42
+[23:56:51] (42/60) trained runs/credit/none/lam2_mu0.05_seed43
+[23:56:52] (43/60) trained runs/credit/none/lam0_mu0.05_seed43
+[23:56:52] (44/60) trained runs/adult/window_k8/lam5_mu0.05_seed44
+[23:56:53] (45/60) trained runs/adult/none/lam5_mu0.05_seed44
+[23:56:55] (46/60) trained runs/credit/none/lam5_mu0.05_seed42
+[23:56:55] (47/60) trained runs/credit/none/lam1_mu0.05_seed43
+[23:57:00] (48/60) trained runs/adult/none/lam1_mu0.05_seed44
+[23:57:00] (49/60) trained runs/credit/none/lam0_mu0.05_seed42
+[23:57:03] (50/60) trained runs/credit/window_k8/lam1_mu0.05_seed44
+[23:57:03] (51/60) trained runs/credit/window_k8/lam1_mu0.05_seed43
+[23:57:05] (52/60) trained runs/credit/window_k8/lam0.5_mu0.05_seed43
+[23:57:06] (53/60) trained runs/adult/window_k8/lam5_mu0.05_seed42
+[23:57:11] (54/60) trained runs/credit/window_k8/lam5_mu0.05_seed43
+[23:57:14] (55/60) trained runs/credit/none/lam2_mu0.05_seed44
+[23:57:15] (56/60) trained runs/credit/window_k8/lam0.5_mu0.05_seed44
+[23:57:19] (57/60) trained runs/credit/none/lam0.5_mu0.05_seed44
+[23:57:20] (58/60) trained runs/credit/window_k8/lam0_mu0.05_seed43
+[23:57:20] (59/60) trained runs/credit/window_k8/lam0_mu0.05_seed44
+[23:57:27] (60/60) trained runs/credit/none/lam1_mu0.05_seed42
+[Sun Sep 27 23:57:28 +03 2026] evaluating
+[23:58:16] (1/124) evaluated results/adult/natural/rl/window_k8/lam0_mu0.05_seed43.json
+[23:58:16] (2/124) evaluated results/adult/natural/rl/window_k8/lam0.5_mu0.05_seed43.json
+[23:58:16] (3/124) evaluated results/adult/natural/rl/window_k8/lam1_mu0.05_seed42.json
+[23:58:16] (4/124) evaluated results/adult/natural/rl/window_k8/lam5_mu0.05_seed43.json
+[23:58:16] (5/124) evaluated results/adult/natural/rl/window_k8/lam0_mu0.05_seed42.json
+[23:58:16] (6/124) evaluated results/adult/natural/rl/window_k8/lam1_mu0.05_seed44.json
+[23:58:16] (7/124) evaluated results/adult/natural/rl/window_k8/lam0_mu0.05_seed44.json
+[23:58:16] (8/124) evaluated results/adult/natural/rl/none/lam1_mu0.05_seed42.json
+[23:58:16] (9/124) evaluated results/adult/natural/rl/window_k8/lam0.5_mu0.05_seed42.json
+[23:58:16] (10/124) evaluated results/adult/natural/rl/window_k8/lam1_mu0.05_seed43.json
+[23:58:16] (11/124) evaluated results/adult/natural/rl/window_k8/lam0.5_mu0.05_seed44.json
+[23:58:16] (12/124) evaluated results/adult/natural/rl/window_k8/lam2_mu0.05_seed42.json
+[23:58:16] (13/124) evaluated results/adult/natural/rl/none/lam0.5_mu0.05_seed42.json
+[23:58:16] (14/124) evaluated results/adult/natural/rl/none/lam2_mu0.05_seed42.json
+[23:58:16] (15/124) evaluated results/adult/natural/rl/none/lam0_mu0.05_seed44.json
+[23:58:16] (16/124) evaluated results/adult/synthetic/rl/window_k8/lam0_mu0.05_seed44.json
+[23:58:16] (17/124) evaluated results/adult/synthetic/rl/window_k8/lam1_mu0.05_seed42.json
+[23:58:16] (18/124) evaluated results/adult/natural/rl/none/lam5_mu0.05_seed43.json
+[23:58:17] (19/124) evaluated results/adult/natural/rl/none/lam0.5_mu0.05_seed43.json
+[23:58:17] (20/124) evaluated results/adult/natural/rl/none/lam2_mu0.05_seed44.json
+[23:58:17] (21/124) evaluated results/adult/natural/rl/none/lam0_mu0.05_seed43.json
+[23:58:17] (22/124) evaluated results/adult/synthetic/rl/window_k8/lam0.5_mu0.05_seed44.json
+[23:58:17] (23/124) evaluated results/adult/natural/rl/none/lam0.5_mu0.05_seed44.json
+[23:58:17] (24/124) evaluated results/adult/natural/rl/none/lam1_mu0.05_seed44.json
+[23:58:17] (25/124) evaluated results/adult/synthetic/rl/window_k8/lam0.5_mu0.05_seed43.json
+[23:58:17] (26/124) evaluated results/adult/natural/rl/none/lam5_mu0.05_seed44.json
+[23:58:17] (27/124) evaluated results/adult/natural/rl/none/lam1_mu0.05_seed43.json
+[23:58:17] (28/124) evaluated results/adult/natural/rl/none/lam2_mu0.05_seed43.json
+[23:58:17] (29/124) evaluated results/adult/synthetic/rl/window_k8/lam0_mu0.05_seed43.json
+[23:58:17] (30/124) evaluated results/adult/natural/rl/window_k8/lam2_mu0.05_seed43.json
+[23:58:17] (31/124) evaluated results/adult/natural/rl/window_k8/lam5_mu0.05_seed42.json
+[23:58:17] (32/124) evaluated results/adult/natural/rl/none/lam5_mu0.05_seed42.json
+[23:58:17] (33/124) evaluated results/adult/natural/rl/none/lam0_mu0.05_seed42.json
+[23:58:17] (34/124) evaluated results/adult/synthetic/rl/window_k8/lam0.5_mu0.05_seed42.json
+[23:58:17] (35/124) evaluated results/adult/synthetic/rl/window_k8/lam2_mu0.05_seed42.json
+[23:58:17] (36/124) evaluated results/adult/synthetic/rl/window_k8/lam0_mu0.05_seed42.json
+[23:58:17] (37/124) evaluated results/adult/natural/rl/window_k8/lam2_mu0.05_seed44.json
+[23:58:17] (38/124) evaluated results/adult/natural/rl/window_k8/lam5_mu0.05_seed44.json
+[23:58:17] (39/124) evaluated results/adult/synthetic/rl/window_k8/lam1_mu0.05_seed44.json
+[23:58:17] (40/124) evaluated results/adult/synthetic/rl/window_k8/lam1_mu0.05_seed43.json
+[23:58:17] (41/124) evaluated results/adult/synthetic/rl/none/lam5_mu0.05_seed44.json
+[23:58:17] (42/124) evaluated results/adult/synthetic/rl/none/lam2_mu0.05_seed42.json
+[23:58:17] (43/124) evaluated results/adult/synthetic/rl/none/lam1_mu0.05_seed42.json
+[23:58:17] (44/124) evaluated results/adult/synthetic/rl/window_k8/lam5_mu0.05_seed43.json
+[23:58:17] (45/124) evaluated results/adult/synthetic/rl/window_k8/lam2_mu0.05_seed44.json
+[23:58:17] (46/124) evaluated results/adult/synthetic/rl/window_k8/lam5_mu0.05_seed44.json
+[23:58:17] (47/124) evaluated results/adult/synthetic/rl/none/lam0.5_mu0.05_seed42.json
+[23:58:18] (48/124) evaluated results/adult/synthetic/rl/none/lam1_mu0.05_seed43.json
+[23:58:18] (49/124) evaluated results/adult/synthetic/rl/window_k8/lam5_mu0.05_seed42.json
+[23:58:18] (50/124) evaluated results/adult/synthetic/rl/window_k8/lam2_mu0.05_seed43.json
+[23:58:18] (51/124) evaluated results/adult/synthetic/rl/none/lam0.5_mu0.05_seed44.json
+[23:58:18] (52/124) evaluated results/adult/synthetic/rl/none/lam2_mu0.05_seed43.json
+[23:58:18] (53/124) evaluated results/adult/synthetic/rl/none/lam0_mu0.05_seed43.json
+[23:58:18] (54/124) evaluated results/adult/synthetic/rl/none/lam0_mu0.05_seed42.json
+[23:58:18] (55/124) evaluated results/adult/synthetic/rl/none/lam5_mu0.05_seed42.json
+[23:58:18] (56/124) evaluated results/adult/synthetic/rl/none/lam2_mu0.05_seed44.json
+[23:58:18] (57/124) evaluated results/adult/synthetic/rl/none/lam1_mu0.05_seed44.json
+[23:58:18] (58/124) evaluated results/adult/synthetic/rl/none/lam5_mu0.05_seed43.json
+[23:58:18] (59/124) evaluated results/adult/synthetic/rl/none/lam0_mu0.05_seed44.json
+[23:58:18] (60/124) evaluated results/adult/synthetic/rl/none/lam0.5_mu0.05_seed43.json
+[23:58:18] (61/124) evaluated results/credit/natural/rl/window_k8/lam0_mu0.05_seed42.json
+[23:58:23] (62/124) evaluated results/credit/natural/rl/window_k8/lam0_mu0.05_seed43.json
+[23:58:23] (63/124) evaluated results/credit/natural/rl/window_k8/lam0.5_mu0.05_seed43.json
+[23:58:23] (64/124) evaluated results/credit/natural/rl/window_k8/lam0_mu0.05_seed44.json
+[23:58:23] (65/124) evaluated results/credit/natural/rl/window_k8/lam1_mu0.05_seed44.json
+[23:58:23] (66/124) evaluated results/credit/natural/rl/window_k8/lam0.5_mu0.05_seed44.json
+[23:58:23] (67/124) evaluated results/credit/natural/rl/window_k8/lam0.5_mu0.05_seed42.json
+[23:58:23] (68/124) evaluated results/credit/natural/rl/none/lam0_mu0.05_seed43.json
+[23:58:23] (69/124) evaluated results/credit/natural/rl/none/lam0_mu0.05_seed44.json
+[23:58:23] (70/124) evaluated results/credit/natural/rl/window_k8/lam2_mu0.05_seed43.json
+[23:58:23] (71/124) evaluated results/credit/natural/rl/window_k8/lam1_mu0.05_seed43.json
+[23:58:23] (72/124) evaluated results/credit/natural/rl/window_k8/lam1_mu0.05_seed42.json
+[23:58:23] (73/124) evaluated results/credit/natural/rl/window_k8/lam5_mu0.05_seed42.json
+[23:58:23] (74/124) evaluated results/credit/natural/rl/window_k8/lam2_mu0.05_seed42.json
+[23:58:23] (75/124) evaluated results/credit/natural/rl/none/lam1_mu0.05_seed43.json
+[23:58:23] (76/124) evaluated results/credit/natural/rl/none/lam0.5_mu0.05_seed44.json
+[23:58:23] (77/124) evaluated results/credit/natural/rl/none/lam0.5_mu0.05_seed42.json
+[23:58:23] (78/124) evaluated results/credit/natural/rl/window_k8/lam2_mu0.05_seed44.json
+[23:58:23] (79/124) evaluated results/credit/natural/rl/window_k8/lam5_mu0.05_seed43.json
+[23:58:23] (80/124) evaluated results/credit/natural/rl/none/lam0_mu0.05_seed42.json
+[23:58:23] (81/124) evaluated results/credit/natural/rl/none/lam2_mu0.05_seed43.json
+[23:58:23] (82/124) evaluated results/credit/natural/rl/window_k8/lam5_mu0.05_seed44.json
+[23:58:23] (83/124) evaluated results/credit/natural/rl/none/lam1_mu0.05_seed42.json
+[23:58:23] (84/124) evaluated results/credit/natural/rl/none/lam0.5_mu0.05_seed43.json
+[23:58:23] (85/124) evaluated results/credit/natural/rl/none/lam1_mu0.05_seed44.json
+[23:58:23] (86/124) evaluated results/credit/natural/rl/none/lam2_mu0.05_seed42.json
+[23:58:23] (87/124) evaluated results/credit/natural/rl/none/lam5_mu0.05_seed42.json
+[23:58:23] (88/124) evaluated results/credit/natural/rl/none/lam5_mu0.05_seed43.json
+[23:58:23] (89/124) evaluated results/credit/natural/rl/none/lam2_mu0.05_seed44.json
+[23:58:23] (90/124) evaluated results/credit/natural/rl/none/lam5_mu0.05_seed44.json
+[23:58:23] (91/124) evaluated results/credit/synthetic/rl/window_k8/lam0.5_mu0.05_seed42.json
+[23:58:23] (92/124) evaluated results/credit/synthetic/rl/window_k8/lam1_mu0.05_seed42.json
+[23:58:23] (93/124) evaluated results/credit/synthetic/rl/window_k8/lam0_mu0.05_seed44.json
+[23:58:23] (94/124) evaluated results/credit/synthetic/rl/window_k8/lam0_mu0.05_seed43.json
+[23:58:23] (95/124) evaluated results/credit/synthetic/rl/window_k8/lam0.5_mu0.05_seed43.json
+[23:58:23] (96/124) evaluated results/credit/synthetic/rl/window_k8/lam0.5_mu0.05_seed44.json
+[23:58:23] (97/124) evaluated results/credit/synthetic/rl/window_k8/lam0_mu0.05_seed42.json
+[23:58:24] (98/124) evaluated results/credit/synthetic/rl/window_k8/lam1_mu0.05_seed44.json
+[23:58:24] (99/124) evaluated results/credit/synthetic/rl/window_k8/lam1_mu0.05_seed43.json
+[23:58:24] (100/124) evaluated results/credit/synthetic/rl/window_k8/lam2_mu0.05_seed42.json
+[23:58:24] (101/124) evaluated results/credit/synthetic/rl/window_k8/lam2_mu0.05_seed44.json
+[23:58:24] (102/124) evaluated results/credit/synthetic/rl/window_k8/lam2_mu0.05_seed43.json
+[23:58:24] (103/124) evaluated results/credit/synthetic/rl/window_k8/lam5_mu0.05_seed42.json
+[23:58:24] (104/124) evaluated results/credit/synthetic/rl/window_k8/lam5_mu0.05_seed43.json
+[23:58:24] (105/124) evaluated results/credit/synthetic/rl/window_k8/lam5_mu0.05_seed44.json
+[23:58:24] (106/124) evaluated results/credit/synthetic/rl/none/lam0_mu0.05_seed42.json
+[23:58:24] (107/124) evaluated results/credit/synthetic/rl/none/lam0_mu0.05_seed44.json
+[23:58:24] (108/124) evaluated results/credit/synthetic/rl/none/lam0_mu0.05_seed43.json
+[23:58:24] (109/124) evaluated results/credit/synthetic/rl/none/lam1_mu0.05_seed43.json
+[23:58:24] (110/124) evaluated results/credit/synthetic/rl/none/lam2_mu0.05_seed42.json
+[23:58:24] (111/124) evaluated results/credit/synthetic/rl/none/lam1_mu0.05_seed42.json
+[23:58:24] (112/124) evaluated results/credit/synthetic/rl/none/lam1_mu0.05_seed44.json
+[23:58:24] (113/124) evaluated results/credit/synthetic/rl/none/lam0.5_mu0.05_seed42.json
+[23:58:24] (114/124) evaluated results/credit/synthetic/rl/none/lam0.5_mu0.05_seed43.json
+[23:58:24] (115/124) evaluated results/credit/synthetic/rl/none/lam0.5_mu0.05_seed44.json
+[23:58:24] (116/124) evaluated results/credit/synthetic/rl/none/lam2_mu0.05_seed44.json
+[23:58:24] (117/124) evaluated results/credit/synthetic/rl/none/lam2_mu0.05_seed43.json
+[23:58:24] (118/124) evaluated results/credit/synthetic/rl/none/lam5_mu0.05_seed44.json
+[23:58:24] (119/124) evaluated results/credit/synthetic/rl/none/lam5_mu0.05_seed42.json
+[23:58:24] (120/124) evaluated results/credit/synthetic/rl/none/lam5_mu0.05_seed43.json
+[23:58:36] (121/124) evaluated results/adult/natural/baselines.json
+[23:58:38] (122/124) evaluated results/adult/synthetic/baselines.json
+[23:58:40] (123/124) evaluated results/credit/natural/baselines.json
+[23:58:53] (124/124) evaluated results/credit/synthetic/baselines.json
+[Sun Sep 27 23:58:55 +03 2026] aggregating
+
+=== Adult Income (XGBoost + SHAP) / natural attacker ===
+                   strategy            type  Adversary Error (Security) ↑  Explanation Distortion ↓  Spearman's ρ ↑  Top-3 Agreement ↑
+                 No Defense Static Baseline                      0.234488                  0.000000        1.000000           1.000000
+                Top-K (k=3) Static Baseline                      0.243808                  0.147416        0.941124           1.000000
+   Gaussian Noise (lvl=0.5) Static Baseline                      0.252051                  1.068754        0.590057           0.721111
+Precision Reduction (2 dec) Static Baseline                      0.234272                  0.006202        0.998184           0.994889
+      Random Subset (p=0.5) Static Baseline                      0.275823                  0.588273        0.557506           0.547111
+                      PRADA           PRADA                      0.234488                  0.000000        1.000000           1.000000
+                    adversary_error           distortion            spearman                top3          
+                               mean       std       mean       std      mean       std      mean       std
+history mu   lambda                                                                                       
+none    0.05 0.0           0.234488  0.000000   0.000000  0.000000  1.000000  0.000000  1.000000  0.000000
+             0.5           0.284813  0.029345   0.099804  0.045991  0.918857  0.041238  0.966222  0.015750
+             1.0           0.301529  0.005048   0.140535  0.013004  0.883238  0.012221  0.952963  0.003800
+             2.0           0.305667  0.005695   0.211325  0.056288  0.850210  0.026236  0.934963  0.013230
+             5.0           0.298990  0.012450   0.873870  0.317008  0.564051  0.099481  0.790889  0.030997
+window  0.05 0.0           0.234477  0.000016   0.000453  0.000406  0.999860  0.000122  0.999704  0.000339
+             0.5           0.257435  0.002280   0.147321  0.048090  0.917765  0.021981  0.951259  0.009869
+             1.0           0.267077  0.005122   0.329140  0.056716  0.835276  0.022372  0.909704  0.009450
+             2.0           0.286706  0.003678   0.524180  0.061168  0.746400  0.023536  0.871926  0.005663
+             5.0           0.296827  0.010106   0.907181  0.113426  0.598819  0.040743  0.814222  0.018148
+ -> saved figures/adult_natural_mu0.05_lambda_sweep.png
+ -> saved figures/adult_natural_mu0.05_none_tradeoff.png
+ -> saved figures/adult_natural_mu0.05_window_tradeoff.png
+
+=== Adult Income (XGBoost + SHAP) / synthetic attacker ===
+                   strategy            type  Adversary Error (Security) ↑  Explanation Distortion ↓  Spearman's ρ ↑  Top-3 Agreement ↑
+                 No Defense Static Baseline                      0.125890                  0.000000        1.000000           1.000000
+                Top-K (k=3) Static Baseline                      0.124441                  0.117767        0.941124           1.000000
+   Gaussian Noise (lvl=0.5) Static Baseline                      0.143163                  0.772199        0.668838           0.736000
+Precision Reduction (2 dec) Static Baseline                      0.126712                  0.004431        0.998427           0.992667
+      Random Subset (p=0.5) Static Baseline                      0.180752                  0.590456        0.499838           0.545778
+                      PRADA           PRADA                      0.210135                  1.491929        0.196419           0.677333
+                    adversary_error               distortion            spearman                top3          
+                               mean           std       mean       std      mean       std      mean       std
+history mu   lambda                                                                                           
+none    0.05 0.0           0.125890  0.000000e+00   0.000000  0.000000  1.000000  0.000000  1.000000  0.000000
+             0.5           0.173586  4.130589e-02   0.106952  0.092754  0.919835  0.069507  0.971778  0.024574
+             1.0           0.199104  2.046855e-03   0.190194  0.034898  0.859810  0.023476  0.946000  0.013954
+             2.0           0.204513  5.529403e-03   0.207081  0.037095  0.851289  0.024847  0.939481  0.017222
+             5.0           0.167264  3.411565e-02   0.554523  0.373515  0.687467  0.175298  0.835259  0.078867
+window  0.05 0.0           0.125891  5.499854e-07   0.000191  0.000270  0.999924  0.000132  0.999704  0.000513
+             0.5           0.140652  1.381678e-02   0.083404  0.055153  0.956800  0.027156  0.972222  0.016227
+             1.0           0.158200  2.131984e-02   0.274864  0.150500  0.847543  0.084202  0.910741  0.042330
+             2.0           0.174404  2.475780e-02   0.336400  0.160136  0.815492  0.094244  0.904074  0.044071
+             5.0           0.197852  3.429943e-03   0.659260  0.497743  0.668394  0.241938  0.846296  0.106342
+ -> saved figures/adult_synthetic_mu0.05_lambda_sweep.png
+ -> saved figures/adult_synthetic_mu0.05_none_tradeoff.png
+ -> saved figures/adult_synthetic_mu0.05_window_tradeoff.png
+
+=== Credit Card (DNN + LIME) / natural attacker ===
+                   strategy            type  Adversary Error (Security) ↑  Explanation Distortion ↓  Spearman's ρ ↑  Top-3 Agreement ↑
+                 No Defense Static Baseline                      0.086625                  0.000000        1.000000           1.000000
+                Top-K (k=3) Static Baseline                      0.082223                  0.763247        0.528731           1.000000
+   Gaussian Noise (lvl=0.5) Static Baseline                      0.081166                  0.706366        0.796677           0.525556
+Precision Reduction (2 dec) Static Baseline                      0.085093                  0.564275        0.772782           0.443778
+      Random Subset (p=0.5) Static Baseline                      0.093263                  0.697717        0.646930           0.498667
+                      PRADA           PRADA                      0.086625                  0.000000        1.000000           1.000000
+                    adversary_error           distortion            spearman                top3          
+                               mean       std       mean       std      mean       std      mean       std
+history mu   lambda                                                                                       
+none    0.05 0.0           0.086614  0.000020   0.000185  0.000233  0.999949  0.000083  0.999704  0.000339
+             0.5           0.086336  0.000215   0.014462  0.012192  0.994343  0.005676  0.988000  0.010697
+             1.0           0.086560  0.000562   0.038571  0.030142  0.984095  0.012759  0.972963  0.017834
+             2.0           0.086699  0.000591   0.062928  0.029477  0.972831  0.013760  0.956370  0.018456
+             5.0           0.086043  0.001869   0.140147  0.060272  0.939426  0.035600  0.908444  0.040068
+window  0.05 0.0           0.086576  0.000071   0.007119  0.000899  0.998206  0.000138  0.994000  0.000222
+             0.5           0.086853  0.000551   0.141328  0.076803  0.941298  0.032242  0.895852  0.054664
+             1.0           0.086652  0.000857   0.264395  0.095871  0.878288  0.049366  0.814296  0.057446
+             2.0           0.085446  0.000225   0.407574  0.041636  0.801873  0.021899  0.751037  0.017778
+             5.0           0.086018  0.000386   0.439867  0.167401  0.780824  0.092737  0.738148  0.081544
+ -> saved figures/credit_natural_mu0.05_lambda_sweep.png
+ -> saved figures/credit_natural_mu0.05_none_tradeoff.png
+ -> saved figures/credit_natural_mu0.05_window_tradeoff.png
+
+=== Credit Card (DNN + LIME) / synthetic attacker ===
+                   strategy            type  Adversary Error (Security) ↑  Explanation Distortion ↓  Spearman's ρ ↑  Top-3 Agreement ↑
+                 No Defense Static Baseline                      0.062697                  0.000000        1.000000           1.000000
+                Top-K (k=3) Static Baseline                      0.061858                  0.762430        0.528731           1.000000
+   Gaussian Noise (lvl=0.5) Static Baseline                      0.059380                  0.724495        0.788210           0.528667
+Precision Reduction (2 dec) Static Baseline                      0.062641                  0.574186        0.758746           0.451111
+      Random Subset (p=0.5) Static Baseline                      0.068544                  0.699234        0.647195           0.498000
+                      PRADA           PRADA                      0.062254                  1.438392        0.203190           0.298667
+                    adversary_error           distortion            spearman                top3          
+                               mean       std       mean       std      mean       std      mean       std
+history mu   lambda                                                                                       
+none    0.05 0.0           0.062697  0.000000   0.000000  0.000000  1.000000  0.000000  1.000000  0.000000
+             0.5           0.062655  0.000202   0.007612  0.006285  0.998010  0.001692  0.993778  0.004823
+             1.0           0.062728  0.000019   0.034698  0.033902  0.986959  0.013691  0.972741  0.026449
+             2.0           0.062898  0.000529   0.068784  0.026318  0.970546  0.014787  0.956370  0.024223
+             5.0           0.063421  0.000734   0.173565  0.072625  0.926917  0.027602  0.873481  0.055114
+window  0.05 0.0           0.062695  0.000043   0.003866  0.002172  0.998979  0.000817  0.996593  0.001668
+             0.5           0.063019  0.000348   0.078269  0.028106  0.970691  0.014455  0.943333  0.016937
+             1.0           0.062589  0.000747   0.173399  0.116089  0.923649  0.060248  0.880148  0.074732
+             2.0           0.063105  0.000493   0.262714  0.118368  0.875795  0.065813  0.832000  0.075801
+             5.0           0.062869  0.000480   0.357267  0.307053  0.821694  0.167367  0.789481  0.162197
+ -> saved figures/credit_synthetic_mu0.05_lambda_sweep.png
+ -> saved figures/credit_synthetic_mu0.05_none_tradeoff.png
+ -> saved figures/credit_synthetic_mu0.05_window_tradeoff.png
+
+=== Adult Income (XGBoost + SHAP): time per query (ms, median) ===
+                             defence_ms  predict_ms  explain_ms  overhead_vs_explanation_%
+defence                                                                                   
+No Defense                       0.0021      0.2995      0.6064                     0.3403
+Top-K (k=3)                      0.0101      0.2995      0.6064                     1.6603
+Gaussian Noise (lvl=0.5)         0.0219      0.2995      0.6064                     3.6090
+Precision Reduction (2 dec)      0.0081      0.2995      0.6064                     1.3332
+Random Subset (p=0.5)            0.0093      0.2995      0.6064                     1.5352
+PRADA                            0.4007      0.2995      0.6064                    66.0771
+RL agent, history: none          0.3359      0.2995      0.6064                    55.3861
+RL agent, history: window        0.3367      0.2995      0.6064                    55.5254
+
+
+=== Credit Card (DNN + LIME): time per query (ms, median) ===
+                             defence_ms  predict_ms  explain_ms  overhead_vs_explanation_%
+defence                                                                                   
+No Defense                       0.0022      0.1981     15.0877                     0.0144
+Top-K (k=3)                      0.0105      0.1981     15.0877                     0.0699
+Gaussian Noise (lvl=0.5)         0.0222      0.1981     15.0877                     0.1468
+Precision Reduction (2 dec)      0.0080      0.1981     15.0877                     0.0527
+Random Subset (p=0.5)            0.0095      0.1981     15.0877                     0.0631
+PRADA                            0.4253      0.1981     15.0877                     2.8188
+RL agent, history: none          0.3356      0.1981     15.0877                     2.2245
+RL agent, history: window        0.3402      0.1981     15.0877                     2.2550
+
+[Sun Sep 27 23:59:32 +03 2026] done - results/, figures/, evaluation_log.txt
+
+===== SLURM IS ISTATISTIKLERI (JOB STATISTICS) ========================
+Job ID: 530104
+Cluster: altay
+User/Group: gerdogan01/c00006
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 64
+CPU Utilized: 1-12:54:01
+CPU Efficiency: 85.42% of 1-19:12:00 core-walltime
+Job Wall-clock time: 00:40:30
+Memory Utilized: 29.50 GB
+Memory Efficiency: 3.02% of 976.56 GB
+
+=======================================================================

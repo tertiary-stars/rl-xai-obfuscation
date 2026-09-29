@@ -1,0 +1,80 @@
+[
+  {
+    "strategy": "No Defense",
+    "type": "Static Baseline",
+    "adversary_error": 0.12589037457166585,
+    "distortion": 0.0,
+    "spearman": 1.0,
+    "top3": 1.0,
+    "adversary_error_std": 0.025577733294830957,
+    "distortion_std": 0.0,
+    "spearman_std": 0.0,
+    "top3_std": 0.0
+  },
+  {
+    "strategy": "Top-K (k=3)",
+    "type": "Static Baseline",
+    "adversary_error": 0.12444124326251277,
+    "distortion": 0.11776746539194187,
+    "spearman": 0.9411239481143202,
+    "top3": 1.0,
+    "adversary_error_std": 0.021169651403477555,
+    "distortion_std": 0.009265767569379045,
+    "spearman_std": 1.1102230246251565e-16,
+    "top3_std": 0.0
+  },
+  {
+    "strategy": "Gaussian Noise (lvl=0.5)",
+    "type": "Static Baseline",
+    "adversary_error": 0.14316266768908878,
+    "distortion": 0.772199131607465,
+    "spearman": 0.6688380952380952,
+    "top3": 0.7359999999999999,
+    "adversary_error_std": 0.040706471663838326,
+    "distortion_std": 0.08168993009329385,
+    "spearman_std": 0.01663641335844681,
+    "top3_std": 0.012304771733250819
+  },
+  {
+    "strategy": "Precision Reduction (2 dec)",
+    "type": "Static Baseline",
+    "adversary_error": 0.12671189427745772,
+    "distortion": 0.004430759813460119,
+    "spearman": 0.9984267764932685,
+    "top3": 0.9926666666666666,
+    "adversary_error_std": 0.025237193790104976,
+    "distortion_std": 0.0005816594090554164,
+    "spearman_std": 0.0005833511149643143,
+    "top3_std": 0.0005443310539518027
+  },
+  {
+    "strategy": "Random Subset (p=0.5)",
+    "type": "Static Baseline",
+    "adversary_error": 0.18075176358032152,
+    "distortion": 0.5904558617738896,
+    "spearman": 0.4998377700265986,
+    "top3": 0.5457777777777777,
+    "adversary_error_std": 0.09018400251128345,
+    "distortion_std": 0.021908660552263922,
+    "spearman_std": 0.05509598117516624,
+    "top3_std": 0.005769224438109853
+  },
+  {
+    "strategy": "PRADA",
+    "type": "PRADA",
+    "adversary_error": 0.21013521363574295,
+    "distortion": 1.4919288702534628,
+    "spearman": 0.19641904761904763,
+    "top3": 0.6773333333333333,
+    "adversary_error_std": 0.13119359768058428,
+    "distortion_std": 0.0871268328011961,
+    "spearman_std": 0.019779317629677984,
+    "top3_std": 0.019482185594936578,
+    "prada_delta": 0.8037752567763444,
+    "prada_detected_at": [
+      102,
+      101,
+      102
+    ]
+  }
+]

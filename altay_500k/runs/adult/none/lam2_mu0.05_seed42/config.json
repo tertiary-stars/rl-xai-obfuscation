@@ -1,0 +1,12 @@
+{
+  "dataset": "adult",
+  "lambda": 2.0,
+  "mu": 0.05,
+  "history": "none",
+  "state_window": 8,
+  "seed": 42,
+  "timesteps": 500000,
+  "max_steps": 1000,
+  "adv_window": 32,
+  "train_seconds": 2167.13143
+}

@@ -183,7 +183,7 @@ By adjusting $\lambda$ and $\mu$, the system designer controls the emphasis on s
 
 \textbf{Metrics.} Security: the adversary error $\mathcal{E}_t$ (Eq.~\ref{eq:adv_error}, higher is better). Utility: the explanation distortion $D_t$ (Eq.~\ref{eq:distortion}, lower is better), Spearman's rank correlation between $E_{true}$ and $E_{out}$, and the agreement of their top-3 features (both higher is better). All four are averaged over the session.
 
-\textbf{RL agents.} We train agents on the full grid $\lambda\in\{0, 0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5\}\times\mu\in\{0.01, 0.05, 0.1, 0.5\}$, each with the rolling-window state ($k=8$) and the no-history ablation, over several random seeds. For each $\mu$, the figures report all four metrics as a function of $\lambda$.
+\textbf{RL agents.} We train agents on the full grid $\lambda\in\{0, 0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5\}\times\mu\in\{0, 0.01, 0.05, 0.1, 0.2, 0.5\}$ (except $\lambda=\mu=0$), each with the rolling-window state ($k=8$) and the no-history ablation, over several random seeds. For each $\mu$, the figures report all four metrics as a function of $\lambda$.
 
 \section{Advantages of the Proposed Solution}
 The dynamic integration of the RL agent provides several technical benefits:
